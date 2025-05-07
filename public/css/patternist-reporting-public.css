@@ -1,0 +1,159 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+.market-fng-gauge .market-fng-gauge__meter-container {
+    width: 100%;
+    max-width: 525px;
+    padding-bottom: min(52.6%, 276.15px);
+    margin: 0 auto 20px;
+    position: relative;
+}
+@media screen and (min-width: 480px) {
+    .market-fng-gauge .market-fng-gauge__meter-container {
+        margin-bottom: 28px;
+    }
+}
+
+@media screen and (min-width: 1280px) {
+    .market-fng-gauge .market-fng-gauge__meter-container {
+        width: 65%;
+        max-width: inherit;
+        padding-bottom: 33.7%;
+    }
+}
+@media screen and (min-width: 1360px) {
+    .market-fng-gauge .market-fng-gauge__meter-container {
+        margin-bottom: 0;
+    }
+}
+
+.market-fng-gauge .market-fng-gauge__meter {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    box-sizing: content-box;
+    width: 100%;
+}
+
+.market-fng-gauge__dial {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+.market-fng-gauge__dial .st0 {
+    fill: #f7f7f7;
+}
+
+.market-fng-gauge__hand {
+    width: 3.15%;
+    position: absolute;
+    bottom: 0;
+    padding-bottom: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    enable-background: 'new 0 0 10 124';
+}
+
+.market-fng-gauge__hand .market-fng-gauge__hand-svg {
+    z-index: 2;
+    transform-origin: bottom center;
+    transform: rotate(0);
+}
+
+.market-fng-gauge__hand .market-fng-gauge__hand-svg path {
+    fill: #262626;
+}
+.market-fng-gauge__dial .dial-area-number-text, .market-fng-gauge__dial .dots {
+    fill: #8c8b8b;
+}
+.market-fng-gauge__dial .st3 {
+    fill: #6e6e6e;
+}
+
+.market-fng-gauge__hand-base {
+    width: 20%;
+    height: 20%;
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+.market-fng-gauge__hand-base:before {
+    content: '';
+    display: block;
+    background: #fff;
+    width: 100%;
+    padding-bottom: 100%;
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 -15px 15px rgb(12 12 12 / .05);
+}
+
+.market-fng-gauge__dial-number {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    width: 20%;
+    height: 0;
+    padding-top: 11.25%;
+    transition: .5s color;
+    color: #262626;
+}
+
+.market-fng-gauge__dial-number .market-fng-gauge__dial-number-value {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    font-family: inherit;
+    font-size: 27px;
+    line-height: 27px;
+    font-weight: 800;
+    text-align: center;
+}
+
+@media screen and (min-width: 480px) {
+    .market-fng-gauge .market-fng-gauge__dial-number .market-fng-gauge__dial-number-value {
+        font-size: 38px;
+        line-height: 38px;
+    }
+}
+
+.market-fng-gauge__meter[data-index-label="low"] #low {
+    fill: rgba(255,129,112,.5);
+    stroke: #9e092f
+}
+
+.market-fng-gauge__meter[data-index-label="moderate"] #moderate {
+    fill: rgba(255,185,161,.5);
+    stroke: #cd6200
+}
+
+.market-fng-gauge__meter[data-index-label="neutral"] #neutral {
+    fill: #e6e6e6;
+    stroke: #6e6e6e
+}
+
+.market-fng-gauge__meter[data-index-label="high"] #high {
+    fill: #b9ede9;
+    stroke: #3da672
+}
+
+.market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high {
+    fill: #8cd6c3;
+    stroke: #2b7a53
+}
+
+.market-fng-gauge__meter[data-index-label="low"] #low-text .st3, .market-fng-gauge__meter[data-index-label="moderate"] #moderate-text .st3, .market-fng-gauge__meter[data-index-label="high"] #high-text .st3, .market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high-text .st3 {
+    fill: #231f20;
+}

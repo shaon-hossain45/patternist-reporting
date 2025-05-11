@@ -17,7 +17,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 	class Patternist_Reporting_Public_Display {
 
         private $data;
-		const CRON_HOOK = 'retrograde_daily_cron';
 
 	/**
 	 * Initialize the class and set its properties.
@@ -33,8 +32,9 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 			add_action('admin_init', array( $this, 'register_settings' ) );
 
 			add_action( 'init', [ $this, 'schedule_cron' ] );
-			add_action( self::CRON_HOOK, [ $this, 'run_cron_check' ] );
-
+			add_action( 'retrograde_start_mail_cron', [ $this, 'run_start_mail_check' ] );
+			add_action( 'retrograde_end_mail_cron', [ $this, 'run_end_mail_check' ] );
+			
 		}
 
    /**
@@ -322,7 +322,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 			<p>This content is not intended as advice. Always consider your own circumstances before making decisions.</p>
 			<div class="spacer"></div>
 			<p><img src="https://cdn.jsdelivr.net/joypixels/assets/4.5/png/32/1f517.png" width="18" height="18" class="icon">More at: <a href="/links/">Linktree (in bio)</a></p>
-			<p class="disclaimer">Disclaimer: This sentiment tool is based on historical pattern analysis. It is general in nature and should not be relied upon as financial advice. Always make decisions suited to your individual circumstances.</p>
 			</div>
 		</div>
 		<?php
@@ -350,28 +349,33 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 
 
     // Low Moderate High Extremely High
-    public function get_today_risk_score($data) {
-        $today = new DateTime();
-
-        $risk_map = [
-            'Low'             => 0,
-            'Moderate'        => 25,
-            'High'            => 50,
-            'Extremely High' => 75,
-        ];
-    
-        foreach ($data as $row) {
+	public function get_today_risk_score($data) {
+		$today = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
+	
+		$risk_map = [
+			'Low'             => 0,
+			'Moderate'        => 25,
+			'High'            => 50,
+			'Extremely High'  => 75,
+		];
+	
+		// Filter retro rows where today is between start and end
+		$matching_rows = array_filter($data, function ($row) use ($today) {
 			$start = DateTime::createFromFormat('d-m-Y H:i:s', $row['start'] . ' 00:00:00');
 			$end   = DateTime::createFromFormat('d-m-Y H:i:s', $row['end'] . ' 23:59:59');
-
-            // ✅ Only run if today is within the period (inclusive)
-            if (!$start || !$end || $start > $today || $end < $today) {
-                break;
-            }
-    
-            $base_score = $risk_map[$row['risk']] ?? 0;
-
-			// Determine the next upper boundary
+	
+			return $start && $end && $start <= $today && $end >= $today;
+		});
+	
+		// If found, use the first match
+		if (!empty($matching_rows)) {
+			$row = array_shift($matching_rows);
+	
+			$start = DateTime::createFromFormat('d-m-Y H:i:s', $row['start'] . ' 00:00:00');
+			$end   = DateTime::createFromFormat('d-m-Y H:i:s', $row['end'] . ' 23:59:59');
+	
+			$base_score = $risk_map[$row['risk']] ?? 0;
+	
 			$next_score = match ($row['risk']) {
 				'Low'             => 25,
 				'Moderate'        => 50,
@@ -379,33 +383,32 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 				'Extremely High'  => 100,
 				default           => 0,
 			};
-
-			// Calculate time-based progress
+	
 			$total_days  = $start->diff($end)->days;
 			$days_passed = $start->diff($today)->days;
 			$progress_ratio = $total_days > 0 ? ($days_passed / $total_days) : 0;
-
-			// Scale only within this risk level's segment
+	
 			$final_score = $base_score + ($progress_ratio * ($next_score - $base_score));
 			$final_score = min($next_score, round($final_score));
+	
+			return [
+				'risk_label' => $row['risk'],
+				'risk_score' => $final_score,
+				'start'      => $row['start'],
+				'end'        => $row['end'],
+			];
+		}
+	
+		// Default if no matching row
+		return [
+			'risk_label' => '',
+			'risk_score' => 0,
+			'start'      => '',
+			'end'        => '',
+		];
+	}
 
-            return [
-                'risk_label' => $row['risk'],
-                'risk_score' => $final_score,
-                'start' => $row['start'],
-                'end' => $row['end'],
-            ];
-        }
-    
-        return [
-            'risk_label' => '',
-            'risk_score' => 0,
-			'start' => '',
-			'end' => '',
-        ];
-    }
-
-
+	
 	public function get_angle_with_bounds( $risk_level, $risk_score ) {
 		$ranges = [
 			'low'             => [ 'min' => -90, 'max' => -48 ],
@@ -488,42 +491,59 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 
 	// Schedule mail
 	public function schedule_cron() {
-        if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-            wp_schedule_event( $this->get_utc_timestamp_for_3am_melbourne(), 'daily', self::CRON_HOOK );
-        }
-    }
+		// 12:01 AM for start mail
+		if ( ! wp_next_scheduled( 'retrograde_start_mail_cron' ) ) {
+			wp_schedule_event( $this->get_utc_timestamp_for_melbourne_time(0, 1), 'daily', 'retrograde_start_mail_cron' );
+		}
+	
+		// 11:59 PM for end mail
+		if ( ! wp_next_scheduled( 'retrograde_end_mail_cron' ) ) {
+			wp_schedule_event( $this->get_utc_timestamp_for_melbourne_time(23, 59), 'daily', 'retrograde_end_mail_cron' );
+		}
+	}
 
-    private function get_utc_timestamp_for_3am_melbourne() {
-        $date = new DateTime( 'now', new DateTimeZone( 'Australia/Melbourne' ) );
-        $date->setTime( 3, 0, 0 ); // 3:00 AM
-        return $date->getTimestamp();
-    }
+    private function get_utc_timestamp_for_melbourne_time( $hour, $minute ) {
+		$date = new DateTime( 'now', new DateTimeZone( 'Australia/Melbourne' ) );
+		$date->setTime( $hour, $minute, 0 );
+		return $date->getTimestamp();
+	}
 
-    public function run_cron_check() {
-        $retro_data = self::get_retro_data();
-
-        $today = ( new DateTime( 'now', new DateTimeZone( 'Australia/Melbourne' ) ) )->format( 'd-m-Y' );
-        foreach ( $retro_data as $row ) {
-            if ( $today === $row['start'] ) {
-				$this->send_notification( $row, 'start' );
-			} elseif ( $today === $row['end'] ) {
-				$this->send_notification( $row, 'end' );
-			}
-        }
-    }
-
+	public function run_start_mail_check() {
+		$retro_data = self::get_retro_data();
+		$today = (new DateTime('now', new DateTimeZone('Australia/Melbourne')))->format('d-m-Y');
+	
+		$matches = array_filter($retro_data, function ($row) use ($today) {
+			return isset($row['start']) && $row['start'] === $today;
+		});
+	
+		foreach ($matches as $row) {
+			$this->send_notification($row, 'start');
+		}
+	}
+	
+	public function run_end_mail_check() {
+		$retro_data = self::get_retro_data();
+		$today = (new DateTime('now', new DateTimeZone('Australia/Melbourne')))->format('d-m-Y');
+	
+		$matches = array_filter($retro_data, function ($row) use ($today) {
+			return isset($row['end']) && $row['end'] === $today;
+		});
+	
+		foreach ($matches as $row) {
+			$this->send_notification($row, 'end');
+		}
+	}
+	
 	// $admin = get_bloginfo( 'admin_email' );
 	private function send_notification( $row, $type = 'start' ) {
 		$admin = 'shaonhossain615@gmail.com';
 	
 		$label = $type === 'start' ? 'Starting' : 'Ending';
-		$subject = "Sentiment Update: {$label} Phase - {$row['risk']} Now Active";
+		$subject = "Sentiment Update: {$row['risk']} Now Active";
 		
 		$message = "
-			<h2>{$label} Phase: {$row['planet']}</h2>
-			<p><strong>Risk Level:</strong> {$row['risk']}</p>
-			<p>This phase is active from <strong>{$row['start']}</strong> to <strong>{$row['end']}</strong>.</p>
-			<p><em>This notification includes astrology cycle references for internal use only.</em></p>
+			<h2>{$label} Phase: {$row['risk']} is active from {$row['start']} to {$row['end']}</h2>
+			<p>This notification includes astrology cycle references for internal use only.</p>
 		";
 	
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];

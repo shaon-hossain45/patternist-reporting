@@ -5,7 +5,10 @@
  .patternist-reporting {
     background-color: #000;
     border-radius: 10px;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 25px;
+    padding-bottom: 25px;
 }
 .patternist-reporting h2, .patternist-reporting h3, .patternist-reporting h4 {
     margin-bottom: 10px;
@@ -145,28 +148,23 @@
 }
 
 .market-fng-gauge__meter[data-index-label="low"] #low {
-    fill: #8cd6c3;
-    stroke: #2b7a53;
+    fill: rgb(0 128 0);
+    stroke: rgb(0 178 0);
 }
 
 .market-fng-gauge__meter[data-index-label="moderate"] #moderate {
-    fill: #b9ede9;
-    stroke: #3da672;
-}
-
-.market-fng-gauge__meter[data-index-label="neutral"] #neutral {
-    fill: #e6e6e6;
-    stroke: #6e6e6e;
+    fill: yellow;
+    stroke: #ffdd00;
 }
 
 .market-fng-gauge__meter[data-index-label="high"] #high {
-    fill: rgba(255,185,161,.5);
-    stroke: #cd6200;
+    fill: rgb(255 165 0);
+    stroke: rgb(255 165 50);
 }
 
 .market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high {
-    fill: rgba(255,129,112,.5);
-    stroke: #9e092f;
+    fill: rgb(255 0 0);
+    stroke: rgb(255 50 50);
 }
 
 .market-fng-gauge__meter[data-index-label="low"] #low-text .st3, .market-fng-gauge__meter[data-index-label="moderate"] #moderate-text .st3, .market-fng-gauge__meter[data-index-label="high"] #high-text .st3, .market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high-text .st3 {

@@ -157,6 +157,9 @@ class Patternist_Reporting {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// Plugin row actions.
+		$this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_row_actions', 10, 4 );
+
 	}
 
 	/**

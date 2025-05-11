@@ -100,4 +100,20 @@ class Patternist_Reporting_Admin {
 
 	}
 
+	/**
+	 * Register the settings for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function plugin_row_actions( $actions, $plugin_file ) {
+
+		if ( is_plugin_active( $plugin_file ) && basename( dirname( plugin_dir_path( __FILE__ ) ) ) . '/patternist-reporting.php' === $plugin_file ) {
+			$settings_page_url = admin_url( 'options-general.php?page=patternist-settings' );
+
+			// Plugin row actions for active plugins.
+			$actions['settings'] = '<a href="' . esc_url( $settings_page_url ) . '">' . esc_html__( 'Settings', 'patternist-reporting' ) . '</a>';
+		}
+		return $actions;
+	}
+
 }

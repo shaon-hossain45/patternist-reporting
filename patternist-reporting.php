@@ -16,7 +16,7 @@
  * Plugin Name:       Patternist Reporting
  * Plugin URI:        https://https://github.com/shaon-hossain45/patternist-reporting
  * Description:       Patternist Reporting is data controller reporting for Mercury and Venus.
- * Version:           1.0.0
+ * Version:           1.0.5
  * Author:            Md Shaon Hossain
  * Author URI:        https://https://github.com/shaon-hossain45//
  * License:           GPL-2.0+

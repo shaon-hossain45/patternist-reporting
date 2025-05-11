@@ -2,18 +2,38 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+ .patternist-reporting {
+    background-color: #000;
+    border-radius: 10px;
+    padding: 20px;
+}
+.patternist-reporting h2, .patternist-reporting h3, .patternist-reporting h4 {
+    margin-bottom: 10px;
+    color: #fff;
+}
+.patternist-reporting p {
+    color: #fff;
+}
+.patternist-reporting img.icon {
+    margin-top: -3px;
+    margin-right: 5px;
+}
+.patternist-reporting .disclaimer {
+    font-size: 80%;
+    color: #91919d;
+    margin-bottom: 0;
+}
 
+.market-fng-gauge {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
 .market-fng-gauge .market-fng-gauge__meter-container {
     width: 100%;
     max-width: 525px;
     padding-bottom: min(52.6%, 276.15px);
-    margin: 0 auto 20px;
+    margin: 0px auto;
     position: relative;
-}
-@media screen and (min-width: 480px) {
-    .market-fng-gauge .market-fng-gauge__meter-container {
-        margin-bottom: 28px;
-    }
 }
 
 @media screen and (min-width: 1280px) {
@@ -21,11 +41,6 @@
         width: 65%;
         max-width: inherit;
         padding-bottom: 33.7%;
-    }
-}
-@media screen and (min-width: 1360px) {
-    .market-fng-gauge .market-fng-gauge__meter-container {
-        margin-bottom: 0;
     }
 }
 
@@ -50,10 +65,10 @@
 }
 
 .market-fng-gauge__hand {
-    width: 3.15%;
+    width: 3.25%;
     position: absolute;
     bottom: 0;
-    padding-bottom: 3%;
+    padding-bottom: 6px;
     left: 50%;
     transform: translateX(-50%);
     enable-background: 'new 0 0 10 124';
@@ -66,10 +81,10 @@
 }
 
 .market-fng-gauge__hand .market-fng-gauge__hand-svg path {
-    fill: #262626;
+    fill: #fff;
 }
-.market-fng-gauge__dial .dial-area-number-text, .market-fng-gauge__dial .dots {
-    fill: #8c8b8b;
+.market-fng-gauge__dial .meter-point .st1, .market-fng-gauge__dial .dots {
+    fill: #fff;
 }
 .market-fng-gauge__dial .st3 {
     fill: #6e6e6e;
@@ -87,17 +102,17 @@
 .market-fng-gauge__hand-base:before {
     content: '';
     display: block;
-    background: #fff;
+    background: #000;
     width: 100%;
     padding-bottom: 100%;
     position: absolute;
     border-radius: 50%;
-    box-shadow: 0 -15px 15px rgb(12 12 12 / .05);
+    box-shadow: 0 -15px 15px rgb(247 247 247 / .05);
 }
 
 .market-fng-gauge__dial-number {
     position: absolute;
-    bottom: 18px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 4;
@@ -105,7 +120,7 @@
     height: 0;
     padding-top: 11.25%;
     transition: .5s color;
-    color: #262626;
+    color: #fff;
 }
 
 .market-fng-gauge__dial-number .market-fng-gauge__dial-number-value {
@@ -124,36 +139,45 @@
 
 @media screen and (min-width: 480px) {
     .market-fng-gauge .market-fng-gauge__dial-number .market-fng-gauge__dial-number-value {
-        font-size: 38px;
-        line-height: 38px;
+        font-size: 30px;
+        line-height: 30px;
     }
 }
 
 .market-fng-gauge__meter[data-index-label="low"] #low {
-    fill: rgba(255,129,112,.5);
-    stroke: #9e092f
+    fill: #8cd6c3;
+    stroke: #2b7a53;
 }
 
 .market-fng-gauge__meter[data-index-label="moderate"] #moderate {
-    fill: rgba(255,185,161,.5);
-    stroke: #cd6200
+    fill: #b9ede9;
+    stroke: #3da672;
 }
 
 .market-fng-gauge__meter[data-index-label="neutral"] #neutral {
     fill: #e6e6e6;
-    stroke: #6e6e6e
+    stroke: #6e6e6e;
 }
 
 .market-fng-gauge__meter[data-index-label="high"] #high {
-    fill: #b9ede9;
-    stroke: #3da672
+    fill: rgba(255,185,161,.5);
+    stroke: #cd6200;
 }
 
 .market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high {
-    fill: #8cd6c3;
-    stroke: #2b7a53
+    fill: rgba(255,129,112,.5);
+    stroke: #9e092f;
 }
 
 .market-fng-gauge__meter[data-index-label="low"] #low-text .st3, .market-fng-gauge__meter[data-index-label="moderate"] #moderate-text .st3, .market-fng-gauge__meter[data-index-label="high"] #high-text .st3, .market-fng-gauge__meter[data-index-label="extremely-high"] #extremely-high-text .st3 {
-    fill: #231f20;
+    fill: #000;
+}
+.patternist-reporting .spacer {
+    padding-bottom: 10px;
+    display: block;
+    clear: both;
+}
+
+.patternist-reporting .reporting-headline, .patternist-reporting .content-part {
+    text-align: center;
 }

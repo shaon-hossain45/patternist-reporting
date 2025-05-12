@@ -34,7 +34,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 			add_action( 'init', [ $this, 'schedule_cron' ] );
 			add_action( 'retrograde_start_mail_cron', [ $this, 'run_start_mail_check' ] );
 			add_action( 'retrograde_end_mail_cron', [ $this, 'run_end_mail_check' ] );
-			
 		}
 
    /**
@@ -61,9 +60,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 		    <h2><img src="https://cdn.jsdelivr.net/joypixels/assets/4.5/png/32/1f537.png" width="24" height="24" class="icon">Patternist Sentiment Watch</h2>
 			<p>Tracking shifts in global sentiment through historical pattern timing.</p>
         </div>
-		<?php
-		if ( $risk_label && ($risk_score !== null) ) {
-		?>
         <div class="market-fng-gauge">
             <div class="market-fng-gauge__meter-container">
                 <div class="market-fng-gauge__meter" data-index-label="<?php echo strtolower(str_replace(' ', '-', $risk_label)); ?>">
@@ -298,7 +294,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
                 </div>
             </div>
         </div>
-		<?php }; ?>
 		<div class="content-part">
 			<h4><img src="https://cdn.jsdelivr.net/joypixels/assets/4.5/png/32/1f5d3.png" width="18" height="18" class="icon">Today’s Date: <span style="font-size: 17px; font-weight: 400;"><?php echo esc_html( $today_display ); ?></span></h4>
 			<?php
@@ -327,8 +322,6 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 		<?php
         return ob_get_clean(); // Return the buffered output
 	}
-
-
 
     public function template_data() {
 
@@ -366,7 +359,7 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 	
 			return $start && $end && $start <= $today && $end >= $today;
 		});
-	
+
 		// If found, use the first match
 		if (!empty($matching_rows)) {
 			$row = array_shift($matching_rows);
@@ -493,11 +486,13 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 	public function schedule_cron() {
 		// 12:01 AM for start mail
 		if ( ! wp_next_scheduled( 'retrograde_start_mail_cron' ) ) {
-			wp_schedule_event( $this->get_utc_timestamp_for_melbourne_time(0, 1), 'daily', 'retrograde_start_mail_cron' );
+			wp_clear_scheduled_hook( 'retrograde_start_mail_cron' );
+			wp_schedule_event( $this->get_utc_timestamp_for_melbourne_time(00, 01), 'daily', 'retrograde_start_mail_cron' );
 		}
 	
 		// 11:59 PM for end mail
 		if ( ! wp_next_scheduled( 'retrograde_end_mail_cron' ) ) {
+			wp_clear_scheduled_hook( 'retrograde_end_mail_cron' );
 			wp_schedule_event( $this->get_utc_timestamp_for_melbourne_time(23, 59), 'daily', 'retrograde_end_mail_cron' );
 		}
 	}
@@ -510,39 +505,52 @@ if ( ! class_exists( 'Patternist_Reporting_Public_Display' ) ) {
 
 	public function run_start_mail_check() {
 		$retro_data = self::get_retro_data();
-		$today = (new DateTime('now', new DateTimeZone('Australia/Melbourne')))->format('d-m-Y');
+		$today = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
 	
+		// Filter retro rows where today is between start and end
 		$matches = array_filter($retro_data, function ($row) use ($today) {
-			return isset($row['start']) && $row['start'] === $today;
-		});
+			$start = DateTime::createFromFormat('d-m-Y H:i:s', $row['start'] . ' 00:00:00');
+			$end   = DateTime::createFromFormat('d-m-Y H:i:s', $row['end'] . ' 23:59:59');
 	
-		foreach ($matches as $row) {
-			$this->send_notification($row, 'start');
+			return $start && $end && $start <= $today && $end >= $today;
+		});
+
+		// If found, use the first match
+		if (!empty($matches)) {
+			foreach ($matches as $row) {
+				$this->send_notification($row, 'start');
+			}
 		}
 	}
 	
 	public function run_end_mail_check() {
 		$retro_data = self::get_retro_data();
-		$today = (new DateTime('now', new DateTimeZone('Australia/Melbourne')))->format('d-m-Y');
+		$today = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
 	
+		// Filter retro rows where today is between start and end
 		$matches = array_filter($retro_data, function ($row) use ($today) {
-			return isset($row['end']) && $row['end'] === $today;
-		});
+			$start = DateTime::createFromFormat('d-m-Y H:i:s', $row['start'] . ' 00:00:00');
+			$end   = DateTime::createFromFormat('d-m-Y H:i:s', $row['end'] . ' 23:59:59');
 	
-		foreach ($matches as $row) {
-			$this->send_notification($row, 'end');
+			return $start && $end && $start <= $today && $end >= $today;
+		});
+
+		// If found, use the first match
+		if (!empty($matches)) {
+			foreach ($matches as $row) {
+				$this->send_notification($row, 'end');
+			}
 		}
 	}
 	
-	// $admin = get_bloginfo( 'admin_email' );
 	private function send_notification( $row, $type = 'start' ) {
-		$admin = 'shaonhossain615@gmail.com';
+		$admin = get_bloginfo( 'admin_email' );
 	
 		$label = $type === 'start' ? 'Starting' : 'Ending';
 		$subject = "Sentiment Update: {$row['risk']} Now Active";
 		
 		$message = "
-			<h2>{$label} Phase: {$row['risk']} is active from {$row['start']} to {$row['end']}</h2>
+			<h2>{$label} Phase: <span style=\"font-size: 16px; font-weight: normal;\">{$row['risk']} is active from {$row['start']} to {$row['end']}</span></h2>
 			<p>This notification includes astrology cycle references for internal use only.</p>
 		";
 	

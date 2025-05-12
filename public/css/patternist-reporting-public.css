@@ -63,10 +63,6 @@
     left: 0;
 }
 
-.market-fng-gauge__dial .st0 {
-    fill: #f7f7f7;
-}
-
 .market-fng-gauge__hand {
     width: 3.25%;
     position: absolute;
@@ -145,6 +141,10 @@
         font-size: 30px;
         line-height: 30px;
     }
+}
+
+.market-fng-gauge__dial .st0 {
+    fill: #f7f7f7;
 }
 
 .market-fng-gauge__meter[data-index-label="low"] #low {
